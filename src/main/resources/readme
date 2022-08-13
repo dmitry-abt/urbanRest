@@ -1,0 +1,96 @@
+-- run to define ___pedestrian_concave_hull(geometry)
+CREATE OR REPLACE FUNCTION public.___pedestrian_concave_hull(geometry, integer)
+ RETURNS TABLE(id bigint, geometry geometry, access integer, illumination boolean, accidents integer, name character varying, purpose integer, address character varying, height integer, floors integer, year_construct date, year_repair date, residentnumber integer, vacancies integer, type integer, info character varying, traffic integer, profile integer, surface integer, clazz_ integer)
+ LANGUAGE sql
+AS $function$
+ 		with saved as
+ 		(
+ 			select st_collect(geometry) as foo from ways_pedestrians join (
+ 			SELECT * from pgr_drivingDistance(
+ 				 'SELECT id
+ 				 , source
+ 				 , target
+ 				 , length_m as cost FROM "ways_pedestrians"      '
+ 				 ,(SELECT id FROM ways_pedestrians_vertices_pgr p WHERE
+ 				  ST_DWithin($1, p.the_geom, 100, true)
+ 				  limit 1
+ 				 ),$2,FALSE)
+ 		 ) as route on ways_pedestrians.target = route.node
+ 		)
+
+ 		select 0::bigint, ST_ConcaveHull(ST_Collect(foo), 0.99), 1, false, 0, '', 0, '', 0, 0, '2000-01-01'::date, '2000-01-01'::date,
+ 			0, 0, 0, '', 0, 0, 0, 1
+ 			FROM saved;
+
+  	$function$
+;
+
+-- run to define ___pedestrian_graph(geometry)
+CREATE OR REPLACE FUNCTION public.___pedestrian_graph(geometry, integer)
+ RETURNS TABLE(id bigint, geometry geometry, access integer, illumination boolean, accidents integer, name character varying, purpose integer, address character varying, height integer, floors integer, year_construct date, year_repair date, residentnumber integer, vacancies integer, type integer, info character varying, traffic integer, profile integer, surface integer, clazz_ integer)
+ LANGUAGE sql
+AS $function$
+ 	SELECT id, geometry, 1, false, 0, '', 0, '', 0, 0, '2000-01-01'::date, '2000-01-01'::date,
+	0, 0, 0, '', 0, 0, 0, 1
+	from ways_pedestrians join (
+ SELECT * from pgr_drivingDistance(
+         'SELECT id
+         , source
+         , target
+         , length_m as cost FROM "ways_pedestrians"      '
+         ,(SELECT id FROM ways_pedestrians_vertices_pgr p WHERE
+ 		  ST_DWithin($1, p.the_geom, 100, true)
+ 		  limit 1
+ 		 ),$2,FALSE)
+ ) as route on ways_pedestrians.target = route.node
+ 	$function$
+;
+
+-- run to define ___car_concave_hull(geometry)
+CREATE OR REPLACE FUNCTION public.___car_concave_hull(geometry, integer)
+ RETURNS TABLE(id bigint, geometry geometry, access integer, illumination boolean, accidents integer, name character varying, purpose integer, address character varying, height integer, floors integer, year_construct date, year_repair date, residentnumber integer, vacancies integer, type integer, info character varying, traffic integer, profile integer, surface integer, clazz_ integer)
+ LANGUAGE sql
+AS $function$
+ 		with saved as
+ 		(
+ 			select st_collect(geometry) as foo from ways_cars join (
+ 			SELECT * from pgr_drivingDistance(
+ 				 'SELECT id
+ 				 , source
+ 				 , target
+ 				 , length_m as cost FROM "ways_cars"      '
+ 				 ,(SELECT id FROM ways_cars_vertices_pgr p WHERE
+ 				  ST_DWithin($1, p.the_geom, 100, true)
+ 				  limit 1
+ 				 ),$2,FALSE)
+ 		 ) as route on ways_cars.target = route.node
+ 		)
+
+ 		select 0::bigint, ST_ConcaveHull(ST_Collect(foo), 0.85), 1, false, 0, '', 0, '', 0, 0, '2000-01-01'::date, '2000-01-01'::date,
+ 			0, 0, 0, '', 0, 0, 0, 1
+ 			FROM saved;
+
+  	$function$
+;
+
+
+-- run to define ___car_graph(geometry)
+CREATE OR REPLACE FUNCTION public.___car_graph(geometry, integer)
+ RETURNS TABLE(id bigint, geometry geometry, access integer, illumination boolean, accidents integer, name character varying, purpose integer, address character varying, height integer, floors integer, year_construct date, year_repair date, residentnumber integer, vacancies integer, type integer, info character varying, traffic integer, profile integer, surface integer, clazz_ integer)
+ LANGUAGE sql
+AS $function$
+ 	SELECT id, geometry, 1, false, 0, '', 0, '', 0, 0, '2000-01-01'::date, '2000-01-01'::date,
+	0, 0, 0, '', 0, 0, 0, 1
+	from ways_cars join (
+ SELECT * from pgr_drivingDistance(
+         'SELECT id
+         , source
+         , target
+         , length_m as cost FROM "ways_cars"      '
+         ,(SELECT id FROM ways_cars_vertices_pgr p WHERE
+ 		  ST_DWithin($1, p.the_geom, 100, true)
+ 		  limit 1
+ 		 ),$2,FALSE)
+ ) as route on ways_cars.target = route.node
+ 	$function$
+;
