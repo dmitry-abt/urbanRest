@@ -1,9 +1,4 @@
 $(function() {
-    // Init map
-    var mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
-    mapboxAccessToken = 'pk.eyJ1IjoiYWxleGFuZGVyMzQzOTYiLCJhIjoiY2p4dXQ5d3FjMDQ5bDNubW5wamRzMnEyZyJ9.upZaF0zYwJ8NK-9Wub4MOg',
-    mapboxMapId = 'mapbox.streets';
-
     var isNeedNeighborGraph = false;
     var isNeedPedestrianGraph = false;
     var isNeedPedestrianConcaveHull = false;
@@ -12,11 +7,9 @@ $(function() {
     var graphRadius = 500;
     var drawControl;
 
-    var tileLayer = new L.tileLayer(mapboxUrl, {
-        minZoom: 9,
-        maxZoom: 18,
-        id: mapboxMapId,
-        accessToken: mapboxAccessToken
+    var tileLayer = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
     });
 
     var map = new L.map('map', {
