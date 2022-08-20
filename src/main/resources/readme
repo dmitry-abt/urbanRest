@@ -94,3 +94,9 @@ AS $function$
  ) as route on ways_cars.target = route.node
  	$function$
 ;
+
+
+-- run to fix SRID
+ALTER TABLE buildings
+ ALTER COLUMN geometry TYPE geometry(Polygon, 4326)
+   USING ST_Transform(ST_SetSRID(geometry, 4674), 4326);
